@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <title>Bate-papo Node.js e Socket.IO</title>
+
+  <style>
+    img{
+      width: 200px;
+    }
+    header {
+      background-color: greenyellow;
+    }
+
+    .container-main {
+      display: flex;
+      justify-content: center;
+    }
+
+    .contatos {
+      width: 40%;
+      background-color: red;
+      padding: 50px;
+    }
+
+    .mensagens {
+      width: 60%;
+      background-color: yellow;
+      overflow-y: auto;
+      word-wrap: break-word;
+    }
+
+    footer {
+      background-color: greenyellow;
+    }
+
+    textarea {
+      width: 100%;
+      overflow: hidden;
+      /* Remove a barra de rolagem */
+      resize: none;
+    }
+
+    .formm {
+      padding: 20px;
+    }
+
+    #meu-textarea {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      resize: none;
+    }
+
+    ul {
+      list-style: none;
+      padding: 20px;
+    }
+
+    .fotosdeperfil{
+      display: column;
+    }
+  </style>
+</head>
+
+<body>
+  <header>WhatsApp</header>
+  <main class="container-main">
+   
+    <div class="contatos">
+      <div>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</div>
+      <div>
+        <label for="">Search</label>
+        <input type="search">
+      </div>
+      <div>
+        <p>Contatos:</p>
+      </div>
+        <div class="fotosdeperfil">
+      <img src="imagens/goodvibes.jpg" alt="">
+      <br>
+      <img src="imagens/l.png" alt="">
+      <br>
+      <img src="imagens/gato.jpg" alt="">
+      <br>
+      <img src="imagens/momo.png" alt="">
+      <br>
+      <img src="imagens/venelope.jpg" alt="">
+  
+    </div>
+    </div>
+    <div class="mensagens quebrar-linha">
+      <ul id="messages"></ul>
+      <form action="" class="formm">
+        <input id="name" placeholder="Seu nome de usuário" autocomplete="off" /><br><br>
+        <div id="textarea-wrapper">
+          <textarea id="message" oninput="autoAumentarTextarea()" placeholder="Sua mensagem"
+            autocomplete="off"></textarea>
+        </div>
+        <br>
+        <button>Enviar</button>
+      </form>
+    </div>
+  </main>
+  <footer>WhatsApp</footer>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var mensagemDoInput = document.getElementById('message')
+    var ulmensagens = document.getElementById('messages')
+    var px = 10;
+
+    var mensagens = document.querySelector('.mensagens');
+    var textareaWrapper = document.getElementById('textarea-wrapper');
+
+    function autoAumentarTextarea() {
+      var textarea = document.getElementById("message");
+
+      if (textarea.scrollHeight > textarea.clientHeight) {
+        textarea.style.height = px + "px";
+        px++;
+        mensagens.scrollTop = mensagens.scrollHeight;
+      }
+    }
+
+    const socket = io();
+    const nameInput = document.getElementById('name');
+    const messageInput = document.getElementById('message');
+    const messages = document.getElementById('messages');
+    let usernameSubmitted = false;
+    document.querySelector('form').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const name = nameInput.value;
+      const message = messageInput.value;
+      if (name.trim() && message.trim()) {
+        socket.emit('chat message', { name, message });
+        messageInput.value = '';
+        if (!usernameSubmitted) {
+          nameInput.disabled = true;
+          usernameSubmitted = true;
+        }
+      }
+    });
+    socket.on('chat message', (data) => {
+      const li = document.createElement('li');
+      li.textContent = `${data.name}: ${data.message}`;
+      messages.appendChild(li);
+      mensagens.scrollTop = mensagens.scrollHeight;
+    });
+  </script>
+</body>
+
+</html>
